@@ -87,7 +87,7 @@ export default function Pricing() {
     }
     const returnUrl = `${window.location.origin}/payment-success?plan=${plan.id}`;
     try {
-      const response = await fetch("/api/create-checkout", {
+      const response = await fetch("/.netlify/functions/create-checkout", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
