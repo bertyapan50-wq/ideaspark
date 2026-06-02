@@ -10,7 +10,7 @@ export default async (req) => {
       throw new Error("Missing DODO_API_KEY in environment variables");
     }
 
-    const response = await fetch("https://api.dodopayments.com/checkouts", {
+    const response = await fetch("https://test.dodopayments.com/checkouts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
