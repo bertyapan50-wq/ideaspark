@@ -293,7 +293,7 @@ function generateBlueprintPDF(idea, blueprint) {
 
   (blueprint.mvp_features || []).forEach((f, i) => {
     checkPage(18);
-    doc.setFillColor(i % 2 === 0 ? ...LIGHT_BG : ...WHITE);
+    doc.setFillColor(...(i % 2 === 0 ? LIGHT_BG : WHITE));
     doc.roundedRect(margin, y, maxW, 14, 2, 2, "F");
 
     // Feature name
