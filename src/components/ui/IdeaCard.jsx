@@ -18,8 +18,7 @@ const difficultyConfig = {
 
 const FREE_SAVE_LIMIT = 3;
 
-export default function IdeaCard({ idea, niche, isSaved, savedId, isPro: _isPro, savedCount, onSaveLimitReached, isSelected, isSelectDisabled, onToggleSelect }) {
-  const isPro = true; // TEMPORARY TEST — tanggalin pagkatapos
+export default function IdeaCard({ idea, niche, isSaved, savedId, isPro, savedCount, onSaveLimitReached, isSelected, isSelectDisabled, onToggleSelect }) {
   const [expanded, setExpanded] = useState(false);
   const [tags, setTags] = useState(idea.tags || []);
   const [notes, setNotes] = useState(idea.notes || "");
