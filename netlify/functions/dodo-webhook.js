@@ -120,11 +120,10 @@ export default async (req) => {
 
     const { error } = await supabase.from("subscriptions").upsert(
       {
-        user_email: email,
-        plan,
-        status:     "active",
-        updated_at: new Date().toISOString(),
-      },
+  user_email: email,
+  plan,
+  status: "active",
+}
       { onConflict: "user_email" }
     );
 
