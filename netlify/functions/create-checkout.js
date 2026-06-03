@@ -1,10 +1,9 @@
 import crypto from "crypto";
 
 // Simple in-memory rate limiter (resets on function cold start)
-// For production, use Upstash Redis or similar persistent store.
-const rateLimitMap = new Map(); // key: email → { count, windowStart }
-const RATE_LIMIT_MAX    = 5;    // max checkout attempts
-const RATE_LIMIT_WINDOW = 60_000; // per 60 seconds
+const rateLimitMap = new Map();
+const RATE_LIMIT_MAX    = 5;
+const RATE_LIMIT_WINDOW = 60_000;
 
 function isRateLimited(email) {
   const now    = Date.now();
@@ -21,11 +20,6 @@ function isRateLimited(email) {
   return false;
 }
 
-/**
- * Validates that the Supabase JWT in the Authorization header is genuine
- * by calling Supabase's /auth/v1/user endpoint.
- * Returns the user object or throws.
- */
 async function verifySupabaseToken(authHeader) {
   if (!authHeader?.startsWith("Bearer ")) {
     throw new Error("Missing or malformed Authorization header");
@@ -46,12 +40,17 @@ async function verifySupabaseToken(authHeader) {
   return user;
 }
 
-/** Whitelist of allowed product IDs — never trust client-supplied IDs blindly */
 function isAllowedProductId(productId) {
-  const allowed = [
-    process.env.DODO_PRO_PRODUCT_ID,
-    process.env.DODO_BUSINESS_PRODUCT_ID,
-  ].filter(Boolean);
+  const proId  = process.env.DODO_PRO_PRODUCT_ID;
+  const bizId  = process.env.DODO_BUSINESS_PRODUCT_ID;
+  const allowed = [proId, bizId].filter(Boolean);
+
+  // TEMP DEBUG — remove after confirming fix
+  console.log("ENV PRO:", proId);
+  console.log("ENV BIZ:", bizId);
+  console.log("Received productId:", productId);
+  console.log("Allowed list:", allowed);
+
   return allowed.includes(productId);
 }
 
@@ -60,7 +59,6 @@ export default async (req) => {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  // ✅ Verify the user is authenticated
   let verifiedUser;
   try {
     verifiedUser = await verifySupabaseToken(req.headers.get("authorization"));
@@ -72,7 +70,6 @@ export default async (req) => {
     });
   }
 
-  // Parse body
   let body;
   try {
     body = await req.json();
@@ -84,12 +81,9 @@ export default async (req) => {
   }
 
   const { productId, returnUrl } = body;
-
-  // ✅ Use the verified email from the token — never trust client-supplied email
   const userEmail = verifiedUser.email;
   const userName  = verifiedUser.user_metadata?.full_name || userEmail;
 
-  // ✅ Validate productId against our whitelist
   if (!productId || !isAllowedProductId(productId)) {
     console.error("Invalid product ID:", productId);
     return new Response(JSON.stringify({ error: "Invalid product" }), {
@@ -98,9 +92,8 @@ export default async (req) => {
     });
   }
 
-  // ✅ Validate returnUrl — must be same origin, no open redirects
   try {
-    const parsed = new URL(returnUrl);
+    const parsed  = new URL(returnUrl);
     const allowed = new URL(process.env.SITE_URL || "https://yourapp.netlify.app");
     if (parsed.origin !== allowed.origin) throw new Error("Origin mismatch");
   } catch {
@@ -110,7 +103,6 @@ export default async (req) => {
     });
   }
 
-  // ✅ Rate limit by verified email
   if (isRateLimited(userEmail)) {
     return new Response(JSON.stringify({ error: "Too many requests. Please wait." }), {
       status: 429,
@@ -125,7 +117,6 @@ export default async (req) => {
     });
   }
 
-  // ✅ Create checkout with verified data only
   try {
     const response = await fetch("https://test.dodopayments.com/checkouts", {
       method: "POST",
