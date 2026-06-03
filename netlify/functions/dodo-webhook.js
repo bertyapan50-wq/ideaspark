@@ -169,4 +169,3 @@ export default async (req) => {
   return new Response("ok", { status: 200 });
 };
 
-export const config = { path: "/api/dodo-webhook" };
