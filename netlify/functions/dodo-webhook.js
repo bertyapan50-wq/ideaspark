@@ -99,7 +99,7 @@ export default async (req) => {
     eventType === "subscription.active"
   ) {
     const email     = payload.data?.customer?.email;
-    const productId = payload.data?.product_cart?.[0]?.product_id;
+    const productId = payload.data?.product_id ?? payload.data?.product_cart?.[0]?.product_id;
     const plan      = getPlanFromProductId(productId);
 
     if (!email) {
