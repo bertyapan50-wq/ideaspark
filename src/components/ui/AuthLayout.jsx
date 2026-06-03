@@ -10,7 +10,7 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
             <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-extrabold text-foreground">IdeaSpark</span>
+            <span className="text-xl font-extrabold text-foreground">Conceptli</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
           {subtitle && <p className="text-muted-foreground mt-1.5 text-sm">{subtitle}</p>}

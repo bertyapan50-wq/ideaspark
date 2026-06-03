@@ -19,7 +19,7 @@ export default function Layout() {
             <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-foreground">IdeaSpark</span>
+            <span className="text-lg font-bold tracking-tight text-foreground">Conceptli</span>
           </Link>
           {/* Desktop Nav */}
           <div className="hidden sm:flex items-center gap-1">

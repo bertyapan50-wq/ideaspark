@@ -11,7 +11,7 @@ const PLANS = [
     name: "Free",
     price: "$0",
     period: "forever",
-    description: "Get started and explore IdeaSpark",
+    description: "Get started and explore Conceptli",
     icon: Zap,
     color: "text-muted-foreground",
     features: [

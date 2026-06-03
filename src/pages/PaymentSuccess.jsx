@@ -75,7 +75,7 @@ export default function PaymentSuccess() {
               <p className="text-muted-foreground">
                 Welcome to{" "}
                 <strong className="text-primary capitalize">{plan}</strong>!
-                You now have full access to IdeaSpark.
+                You now have full access to Conceptli.
               </p>
             </div>
             <Button asChild className="gap-2">

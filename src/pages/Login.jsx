@@ -47,7 +47,7 @@ export default function Login() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your IdeaSpark account"
+      subtitle="Sign in to your Conceptli account"
       footer={
         <>
           Wala pang account?{" "}

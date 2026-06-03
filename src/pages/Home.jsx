@@ -84,7 +84,7 @@ export default function Home() {
   });
 
   const isPro = subscriptions.length > 0;
-  const generationCount = parseInt(localStorage.getItem("ideaSpark_genCount") || "0");
+  const generationCount = parseInt(localStorage.getItem("Conceptli_genCount") || "0");
 
   const handleGenerate = async (niche) => {
     if (!isPro && generationCount >= FREE_LIMIT) {
@@ -96,7 +96,7 @@ export default function Home() {
     try {
       const generated = await generateIdeasFromGroq(niche);
       setIdeas(generated);
-      localStorage.setItem("ideaSpark_genCount", String(generationCount + 1));
+      localStorage.setItem("Conceptli_genCount", String(generationCount + 1));
     } catch (err) {
       console.error("Generation error:", err);
       alert("Failed to generate ideas. Check your Groq API key.");

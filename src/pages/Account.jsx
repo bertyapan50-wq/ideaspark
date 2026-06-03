@@ -40,7 +40,7 @@ export default function Account() {
   const isPro = subscriptions.length > 0;
   const activeSub = subscriptions[0];
   const savedCount = savedIdeas.length;
-  const genCount = parseInt(localStorage.getItem("ideaSpark_genCount") || "0");
+  const genCount = parseInt(localStorage.getItem("Conceptli_genCount") || "0");
 
   const saveUsedPct = isPro ? 100 : Math.min((savedCount / FREE_SAVE_LIMIT) * 100, 100);
   const genUsedPct = isPro ? 100 : Math.min((genCount / FREE_GEN_LIMIT) * 100, 100);
