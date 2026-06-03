@@ -1,40 +1,28 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/api/supabaseClient";
 import { useAuth } from "@/lib/AuthContext";
 import { CheckCircle, Sparkles, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-/**
- * PaymentSuccess page.
- *
- * SECURITY: This page does NOT write subscription data to the database.
- * Subscriptions are ONLY activated by the dodo-webhook.js serverless function
- * after verifying the Dodo Payments webhook signature.
- *
- * This page only reads the subscription status from Supabase to show
- * the user a confirmation once the webhook has processed.
- */
 export default function PaymentSuccess() {
-  const [searchParams]    = useSearchParams();
-  const plan              = searchParams.get("plan") || "pro";
-  const { currentUser }   = useAuth();
+  const [searchParams]  = useSearchParams();
+  const plan            = searchParams.get("plan") || "pro";
+  const { currentUser } = useAuth();
+  const navigate        = useNavigate();
 
-  const [status, setStatus]   = useState("pending"); // pending | confirmed | timeout
+  const [status, setStatus]     = useState("pending");
   const [attempts, setAttempts] = useState(0);
+  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     if (!currentUser?.email) return;
-
     let cancelled = false;
 
-    // Poll Supabase every 2 seconds for up to 30 seconds waiting for webhook
     const poll = async () => {
-      const MAX_ATTEMPTS = 15; // 15 × 2s = 30s
-
+      const MAX_ATTEMPTS = 15;
       for (let i = 0; i < MAX_ATTEMPTS; i++) {
         if (cancelled) return;
-
         const { data } = await supabase
           .from("subscriptions")
           .select("plan, status")
@@ -42,21 +30,28 @@ export default function PaymentSuccess() {
           .eq("status", "active")
           .maybeSingle();
 
-        if (data) {
-          setStatus("confirmed");
-          return;
-        }
-
+        if (data) { setStatus("confirmed"); return; }
         setAttempts(i + 1);
         await new Promise((r) => setTimeout(r, 2000));
       }
-
       if (!cancelled) setStatus("timeout");
     };
 
     poll();
     return () => { cancelled = true; };
   }, [currentUser]);
+
+  // Auto redirect after confirmed
+  useEffect(() => {
+    if (status !== "confirmed") return;
+    const timer = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) { clearInterval(timer); navigate("/account"); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [status, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -77,17 +72,20 @@ export default function PaymentSuccess() {
                 <strong className="text-primary capitalize">{plan}</strong>!
                 You now have full access to Conceptli.
               </p>
+              <p className="text-sm text-muted-foreground mt-3">
+                Redirecting to your account in <strong>{countdown}</strong>s...
+              </p>
             </div>
             <Button asChild className="gap-2">
-              <Link to="/">
+              <Link to="/account">
                 <Sparkles className="h-4 w-4" />
-                Start Generating Ideas
+                Go to Account Now
               </Link>
             </Button>
           </>
         )}
 
-        {/* Waiting for webhook */}
+        {/* Pending */}
         {status === "pending" && (
           <>
             <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto animate-pulse">
@@ -105,7 +103,7 @@ export default function PaymentSuccess() {
           </>
         )}
 
-        {/* Webhook took too long */}
+        {/* Timeout */}
         {status === "timeout" && (
           <>
             <div className="h-20 w-20 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto">
@@ -116,8 +114,7 @@ export default function PaymentSuccess() {
                 Payment received!
               </h1>
               <p className="text-muted-foreground text-sm">
-                Your account is being activated. This can take a minute.
-                Please refresh the page or check back shortly.
+                Your account is being activated. Please refresh or check back shortly.
               </p>
             </div>
             <div className="flex gap-3 justify-center">
@@ -125,7 +122,7 @@ export default function PaymentSuccess() {
                 Refresh
               </Button>
               <Button asChild>
-                <Link to="/">Go to App</Link>
+                <Link to="/account">Go to Account</Link>
               </Button>
             </div>
           </>
