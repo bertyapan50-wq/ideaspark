@@ -40,7 +40,9 @@ const PLANS = [
       "Priority support",
     ],
     cta: "Upgrade to Pro",
-    dodoProductId: import.meta.env.VITE_DODO_PRO_PRODUCT_ID || "YOUR_DODO_PRO_PRODUCT_ID",
+    // ✅ No VITE_ prefix fallback with secret value — product IDs are not secret,
+    // but we still validate them server-side against env vars.
+    dodoProductId: import.meta.env.VITE_DODO_PRO_PRODUCT_ID,
   },
   {
     id: "business",
@@ -58,7 +60,7 @@ const PLANS = [
       "Dedicated support",
     ],
     cta: "Upgrade to Business",
-    dodoProductId: import.meta.env.VITE_DODO_BUSINESS_PRODUCT_ID || "YOUR_DODO_BUSINESS_PRODUCT_ID",
+    dodoProductId: import.meta.env.VITE_DODO_BUSINESS_PRODUCT_ID,
   },
 ];
 
@@ -82,29 +84,59 @@ export default function Pricing() {
 
   const handleCheckout = async (plan) => {
     if (!plan.dodoProductId || plan.dodoProductId.startsWith("YOUR_")) {
-      alert("Dodo Payments product ID not configured yet. Add VITE_DODO_PRO_PRODUCT_ID to your .env.local");
+      alert("Payment not configured. Please contact support.");
       return;
     }
+
+    if (!currentUser) {
+      alert("Please log in to upgrade.");
+      return;
+    }
+
+    // ✅ Get the current session token to authenticate the serverless function
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session?.access_token) {
+      alert("Session expired. Please log in again.");
+      return;
+    }
+
     const returnUrl = `${window.location.origin}/payment-success?plan=${plan.id}`;
+
     try {
       const response = await fetch("/.netlify/functions/create-checkout", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    productId: plan.dodoProductId,
-    userEmail: currentUser?.email,
-    userName: currentUser?.full_name || currentUser?.email,
-    returnUrl,
-  }),
-});
-      const session = await response.json();
-      if (session.checkout_url) {
-        window.location.href = session.checkout_url;
+        method: "POST",
+        headers: {
+          "Content-Type":  "application/json",
+          // ✅ Send auth token — server verifies this before creating checkout
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          productId: plan.dodoProductId,
+          // ✅ Don't send userEmail/userName — server reads these from the token
+          returnUrl,
+        }),
+      });
+
+      if (response.status === 401) {
+        alert("Authentication failed. Please log in again.");
+        return;
+      }
+
+      if (response.status === 429) {
+        alert("Too many requests. Please wait a moment and try again.");
+        return;
+      }
+
+      const session_data = await response.json();
+      if (session_data.checkout_url) {
+        window.location.href = session_data.checkout_url;
       } else {
-        alert("Could not create checkout session. Please check your Dodo API key.");
+        alert("Could not create checkout session. Please try again.");
+        console.error("Checkout error:", session_data);
       }
     } catch (e) {
-      alert("Checkout failed. Make sure VITE_DODO_API_KEY is set in your .env.local");
+      console.error("Checkout failed:", e);
+      alert("Checkout failed. Please try again.");
     }
   };
 
