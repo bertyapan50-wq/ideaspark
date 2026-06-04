@@ -16,13 +16,13 @@ const FRIENDLY_ERRORS = {
 
 function PasswordStrength({ password }) {
   const checks = [
-    { label: "6+ characters", pass: password.length >= 6 },
-    { label: "May uppercase", pass: /[A-Z]/.test(password) },
-    { label: "May number", pass: /[0-9]/.test(password) },
-  ];
+  { label: "6+ characters", pass: password.length >= 6 },
+  { label: "Uppercase letter", pass: /[A-Z]/.test(password) },
+  { label: "Number", pass: /[0-9]/.test(password) },
+];
   const score = checks.filter((c) => c.pass).length;
   const colors = ["bg-destructive", "bg-amber-400", "bg-emerald-500"];
-  const labels = ["Mahina", "Katamtaman", "Malakas"];
+  const labels = ["Weak", "Fair", "Strong"];
 
   if (!password) return null;
 
@@ -60,8 +60,8 @@ function PasswordMatchIndicator({ password, confirm }) {
   return (
     <div className={`flex items-center gap-1.5 mt-1.5 text-xs font-medium ${match ? "text-emerald-600" : "text-destructive"}`}>
       {match
-        ? <><CheckCircle2 className="h-3.5 w-3.5" /> Magkatugma ang passwords</>
-        : <><XCircle className="h-3.5 w-3.5" /> Hindi magkatugma ang passwords</>
+        ? <><CheckCircle2 className="h-3.5 w-3.5" /> Passwords match</>
+: <><XCircle className="h-3.5 w-3.5" /> Passwords do not match</>
       }
     </div>
   );
@@ -213,7 +213,7 @@ export default function Register() {
               <Input
                 id="confirmPassword"
                 type={showConfirm ? "text" : "password"}
-                placeholder="Ulitin ang password"
+                placeholder="Re-enter your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
