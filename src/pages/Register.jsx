@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/api/supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
-import { Loader2, Eye, EyeOff, Sparkles, UserPlus } from "lucide-react";
+import { Loader2, Eye, EyeOff, Sparkles, UserPlus, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,18 +54,40 @@ function PasswordStrength({ password }) {
   );
 }
 
+function PasswordMatchIndicator({ password, confirm }) {
+  if (!confirm) return null;
+  const match = password === confirm;
+  return (
+    <div className={`flex items-center gap-1.5 mt-1.5 text-xs font-medium ${match ? "text-emerald-600" : "text-destructive"}`}>
+      {match
+        ? <><CheckCircle2 className="h-3.5 w-3.5" /> Magkatugma ang passwords</>
+        : <><XCircle className="h-3.5 w-3.5" /> Hindi magkatugma ang passwords</>
+      }
+    </div>
+  );
+}
+
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  const passwordsMatch = password === confirmPassword;
+  const canSubmit = !loading && password.length >= 6 && passwordsMatch && confirmPassword.length > 0;
+
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!passwordsMatch) {
+      setError("Hindi magkatugma ang passwords. Pakiulit.");
+      return;
+    }
     setLoading(true);
     setError("");
     const { error } = await supabase.auth.signUp({
@@ -133,6 +155,7 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
+          {/* Full Name */}
           <div className="space-y-1.5">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -145,6 +168,7 @@ export default function Register() {
             />
           </div>
 
+          {/* Email */}
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -157,6 +181,7 @@ export default function Register() {
             />
           </div>
 
+          {/* Password */}
           <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
@@ -181,13 +206,45 @@ export default function Register() {
             <PasswordStrength password={password} />
           </div>
 
+          {/* Confirm Password */}
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirm ? "text" : "password"}
+                placeholder="Ulitin ang password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className={`pr-10 transition-colors ${
+                  confirmPassword
+                    ? passwordsMatch
+                      ? "border-emerald-400 focus-visible:ring-emerald-300"
+                      : "border-destructive focus-visible:ring-destructive/30"
+                    : ""
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <PasswordMatchIndicator password={password} confirm={confirmPassword} />
+          </div>
+
+          {/* Error */}
           {error && (
             <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
               {error}
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          {/* Submit */}
+          <Button type="submit" className="w-full" disabled={!canSubmit}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserPlus className="h-4 w-4 mr-2" />}
             Create Account
           </Button>
