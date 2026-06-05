@@ -46,14 +46,14 @@ const NICHE_TEMPLATES = [
 const CATEGORIES = ["All", "Health", "Productivity", "Finance", "Education", "E-commerce", "Creator", "Real Estate", "Legal & HR"];
 
 const CARD_COLORS = {
-  Health:        "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200 hover:border-emerald-300",
-  Productivity:  "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200 hover:border-blue-300",
-  Finance:       "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200 hover:border-amber-300",
-  Education:     "bg-violet-100 text-violet-800 border-violet-200 hover:bg-violet-200 hover:border-violet-300",
-  "E-commerce":  "bg-rose-100 text-rose-800 border-rose-200 hover:bg-rose-200 hover:border-rose-300",
-  Creator:       "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200 hover:border-orange-300",
-  "Real Estate": "bg-cyan-100 text-cyan-800 border-cyan-200 hover:bg-cyan-200 hover:border-cyan-300",
-  "Legal & HR":  "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 hover:border-slate-300",
+  Health:        "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
+  Productivity:  "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
+  Finance:       "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
+  Education:     "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
+  "E-commerce":  "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
+  Creator:       "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
+  "Real Estate": "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
+  "Legal & HR":  "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300",
 };
 
 const CAT_COLORS = {
