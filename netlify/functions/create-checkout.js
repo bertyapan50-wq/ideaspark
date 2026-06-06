@@ -118,7 +118,7 @@ export default async (req) => {
   }
 
   try {
-    const response = await fetch("https://test.dodopayments.com/checkouts", {
+    const response = await fetch("https://live.dodopayments.com/checkouts", {
       method: "POST",
       headers: {
         "Content-Type":  "application/json",
